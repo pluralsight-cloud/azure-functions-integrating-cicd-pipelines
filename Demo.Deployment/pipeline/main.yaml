@@ -1,0 +1,45 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: build
+  displayName: Build the application
+
+  jobs:
+  - job: build
+    displayName: Build
+    steps:
+      - task: UseDotNet@2
+        inputs:
+          version: 8.x
+      - task: DotNetCoreCLI@2
+        displayName: Build Function App
+        inputs:
+          command: 'build'
+          projects: |
+            $(System.DefaultWorkingDirectory)/Demo.FunctionApp/Demo.FunctionApp.csproj
+          arguments: --output $(System.DefaultWorkingDirectory)/function-package --configuration Release
+      - task: DotNetCoreCLI@2
+        displayName: Test Function App
+        inputs:
+          command: 'test'
+          projects: |
+            $(System.DefaultWorkingDirectory)/Demo.FunctionApp.Test/Demo.FunctionApp.Test.csproj
+
+      - task: ArchiveFiles@2
+        displayName: 'Archive files'
+        inputs:
+          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/function-package'
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
+          replaceExistingArchive: true
+
+      - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
+        artifact: function-package
+
+      - publish: $(System.DefaultWorkingDirectory)/Demo.Deployment/bicep
+        artifact: bicep-package
