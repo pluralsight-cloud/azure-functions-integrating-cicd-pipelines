@@ -40,6 +40,3 @@ stages:
 
       - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
         artifact: function-package
-
-      - publish: $(System.DefaultWorkingDirectory)/Demo.Deployment/bicep
-        artifact: bicep-package
