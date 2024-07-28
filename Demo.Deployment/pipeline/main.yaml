@@ -40,3 +40,37 @@ stages:
 
       - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
         artifact: function-package
+  - stage: test
+    displayName: Deploy to test
+    jobs:
+    - job: deploy_resources
+      steps:
+      - download: current
+        artifact: function-package
+      - download: current
+        artifact: bicep-package
+
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: Deploy Bicep Template
+        inputs:
+          deploymentScope: ResourceGroup
+          resourceGroupName: 'Test'
+          azureResourceManagerConnection: 'AzureServiceConnection'
+          subscriptionId: '1f6e85e9-1b4e-4360-9dcb-b325427367aa'
+          action: "Create Or Update Resource Group"
+          location: "West Europe"
+          templateLocation: "Linked artifact"
+          csmFile: "$(Pipeline.Workspace)/bicep-package/main.bicep"
+          overrideParameters: '-environment test'
+          deploymentMode: "Incremental"
+          deploymentOutputs: "Deployment"
+          useWithoutJSON: true
+
+      - task: AzureFunctionApp@2
+        displayName: Deploy Function App
+        inputs:
+          azureSubscription: 'AzureServiceConnection'
+          appType: 'functionAppLinux'
+          appName: 'hb-demo-functionscicd-test'
+          resourceGroupName: 'Test'
+          package: '$(Pipeline.Workspace)/function-package/$(Build.BuildNumber).zip'
