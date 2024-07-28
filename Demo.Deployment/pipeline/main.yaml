@@ -41,13 +41,14 @@ stages:
       - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
         artifact: function-package
 
+      - publish: $(System.DefaultWorkingDirectory)/Demo.Deployment/bicep
+        artifact: bicep-package
 
 - stage: deployment_test
   displayName: Deployment to test
   jobs:
   - template: deployment.yaml
     parameters:
-      AppServiceName: 'hb-demo-functionscicd-test'
       Environment: 'test'
       ResourceGroupName: 'Test'
       ServiceConnectionName: 'AzureServiceConnection'
@@ -58,7 +59,6 @@ stages:
   jobs:
   - template: deployment.yaml
     parameters:
-      AppServiceName: 'hb-demo-functionscicd-prod'
       Environment: 'prod'
       ResourceGroupName: 'Production'
       ServiceConnectionName: 'AzureServiceConnection'
