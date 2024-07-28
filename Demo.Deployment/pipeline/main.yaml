@@ -40,19 +40,24 @@ stages:
 
       - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip
         artifact: function-package
-- stage: test
-  displayName: Deploy to test
-  jobs:
-  - job: deploy_resources
-    steps:
-    - download: current
-      artifact: function-package
 
-    - task: AzureFunctionApp@2
-      displayName: Deploy Function App
-      inputs:
-        azureSubscription: 'AzureServiceConnection'
-        appType: 'functionAppLinux'
-        appName: 'hb-demo-functionscicd-test'
-        resourceGroupName: 'Test'
-        package: '$(Pipeline.Workspace)/function-package/$(Build.BuildNumber).zip'
+
+- stage: deployment_test
+  displayName: Deployment to test
+  jobs:
+  - template: deployment.yaml
+    parameters:
+      Environment: 'test'
+      ResourceGroupName: 'Test'
+      ServiceConnectionName: 'AzureServiceConnection'
+      SubscriptionId: '1f6e85e9-1b4e-4360-9dcb-b325427367aa'
+
+- stage: deployment_prod
+  displayName: Deployment to test
+  jobs:
+  - template: deployment.yaml
+    parameters:
+      Environment: 'prod'
+      ResourceGroupName: 'Production'
+      ServiceConnectionName: 'AzureServiceConnection'
+      SubscriptionId: '1f6e85e9-1b4e-4360-9dcb-b325427367aa'

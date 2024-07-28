@@ -1,0 +1,42 @@
+parameters:
+- name: Environment
+  type: string
+- name: ResourceGroupName
+  type: string
+- name: ServiceConnectionName
+  type: string
+- name: SubscriptionId
+  type: string
+
+jobs:
+- job: deploy_resources
+  steps:
+  - download: current
+    artifact: function-package
+  - download: current
+    artifact: bicep-package
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    displayName: Deploy Bicep Template
+    inputs:
+      deploymentScope: ResourceGroup
+      resourceGroupName: ${{ parameters.ResourceGroupName }}
+      azureResourceManagerConnection: ${{ parameters.ServiceConnectionName }}
+      subscriptionId: ${{ parameters.SubscriptionId }}
+      action: "Create Or Update Resource Group"
+      location: "West Europe"
+      templateLocation: "Linked artifact"
+      csmFile: "$(Pipeline.Workspace)/bicep-package/main.bicep"
+      overrideParameters: '-environment ${{ parameters.Environment }}'
+      deploymentMode: "Incremental"
+      deploymentOutputs: "Deployment"
+      useWithoutJSON: true
+
+  - task: AzureFunctionApp@2
+    displayName: Deploy Function App
+    inputs:
+      azureSubscription: '${{ parameters.ServiceConnectionName }}'
+      appType: 'functionAppLinux'
+      appName: $(Deployment.AppServiceName.value)
+      resourceGroupName: '${{ parameters.ResourceGroupName }}'
+      package: '$(Pipeline.Workspace)/function-package/$(Build.BuildNumber).zip'
