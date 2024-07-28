@@ -55,7 +55,7 @@ stages:
       SubscriptionId: '1f6e85e9-1b4e-4360-9dcb-b325427367aa'
 
 - stage: deployment_prod
-  displayName: Deployment to test
+  displayName: Deployment to prod
   jobs:
   - template: deployment.yaml
     parameters:
