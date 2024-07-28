@@ -47,6 +47,7 @@ stages:
   jobs:
   - template: deployment.yaml
     parameters:
+      AppServiceName: 'hb-demo-functionscicd-test'
       Environment: 'test'
       ResourceGroupName: 'Test'
       ServiceConnectionName: 'AzureServiceConnection'
@@ -57,6 +58,7 @@ stages:
   jobs:
   - template: deployment.yaml
     parameters:
+      AppServiceName: 'hb-demo-functionscicd-prod'
       Environment: 'prod'
       ResourceGroupName: 'Production'
       ServiceConnectionName: 'AzureServiceConnection'

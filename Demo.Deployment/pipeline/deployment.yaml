@@ -1,4 +1,6 @@
 parameters:
+- name: AppServiceName
+  type: string
 - name: Environment
   type: string
 - name: ResourceGroupName
@@ -19,6 +21,6 @@ jobs:
     inputs:
       azureSubscription: '${{ parameters.ServiceConnectionName }}'
       appType: 'functionAppLinux'
-      appName: $(Deployment.AppServiceName.value)
+      appName: ${{ parameters.AppServiceName }}
       resourceGroupName: '${{ parameters.ResourceGroupName }}'
       package: '$(Pipeline.Workspace)/function-package/$(Build.BuildNumber).zip'
