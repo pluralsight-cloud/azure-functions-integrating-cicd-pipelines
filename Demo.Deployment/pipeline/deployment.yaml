@@ -13,8 +13,6 @@ jobs:
   steps:
   - download: current
     artifact: function-package
-  - download: current
-    artifact: bicep-package
 
   - task: AzureFunctionApp@2
     displayName: Deploy Function App
